@@ -33,12 +33,13 @@ async def test_symo_inverter(
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusInverterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 52
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 53
     assert_state("sensor.symo_20_dc_current", 0)
     assert_state("sensor.symo_20_energy_day", 10828)
     assert_state("sensor.symo_20_total_energy", 44186900)
     assert_state("sensor.symo_20_energy_year", 25507686)
     assert_state("sensor.symo_20_dc_voltage", 16)
+    assert_state("sensor.symo_20_status_message", "startup")
 
     # Second test at daytime when inverter is producing
     mock_responses(aioclient_mock, night=False)
@@ -46,11 +47,11 @@ async def test_symo_inverter(
         hass, dt_util.utcnow() + FroniusInverterUpdateCoordinator.default_interval
     )
     await hass.async_block_till_done()
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 56
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 57
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusInverterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 58
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 59
     # 4 additional AC entities
     assert_state("sensor.symo_20_dc_current", 2.19)
     assert_state("sensor.symo_20_energy_day", 1113)
@@ -61,6 +62,7 @@ async def test_symo_inverter(
     assert_state("sensor.symo_20_frequency", 49.94)
     assert_state("sensor.symo_20_ac_power", 1190)
     assert_state("sensor.symo_20_ac_voltage", 227.90)
+    assert_state("sensor.symo_20_status_message", "running")
 
     # Third test at nighttime - additional AC entities default to 0
     mock_responses(aioclient_mock, night=True)
@@ -110,7 +112,7 @@ async def test_symo_meter(
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusMeterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 58
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 59
     # states are rounded to 4 decimals
     assert_state("sensor.smart_meter_63a_current_phase_1", 7.755)
     assert_state("sensor.smart_meter_63a_current_phase_2", 6.68)
@@ -164,7 +166,7 @@ async def test_symo_power_flow(
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusInverterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 52
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 53
     # states are rounded to 4 decimals
     assert_state("sensor.solarnet_energy_day", 10828)
     assert_state("sensor.solarnet_total_energy", 44186900)
@@ -180,7 +182,7 @@ async def test_symo_power_flow(
     )
     await hass.async_block_till_done()
     # 54 because power_flow `rel_SelfConsumption` and `P_PV` is not `null` anymore
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 54
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 55
     assert_state("sensor.solarnet_energy_day", 1101.7001)
     assert_state("sensor.solarnet_total_energy", 44188000)
     assert_state("sensor.solarnet_energy_year", 25508788)
@@ -196,7 +198,7 @@ async def test_symo_power_flow(
         hass, dt_util.utcnow() + FroniusPowerFlowUpdateCoordinator.default_interval
     )
     await hass.async_block_till_done()
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 54
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 55
     assert_state("sensor.solarnet_energy_day", 10828)
     assert_state("sensor.solarnet_total_energy", 44186900)
     assert_state("sensor.solarnet_energy_year", 25507686)
@@ -222,11 +224,12 @@ async def test_gen24(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusMeterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 52
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 53
     # inverter 1
     assert_state("sensor.inverter_name_ac_current", 0.1589)
     assert_state("sensor.inverter_name_dc_current_2", 0.0754)
     assert_state("sensor.inverter_name_status_code", 7)
+    assert_state("sensor.inverter_name_status_message", "running")
     assert_state("sensor.inverter_name_dc_current", 0.0783)
     assert_state("sensor.inverter_name_dc_voltage_2", 403.4312)
     assert_state("sensor.inverter_name_ac_power", 37.3204)
@@ -299,7 +302,7 @@ async def test_gen24_storage(
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusMeterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 64
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 65
     # inverter 1
     assert_state("sensor.gen24_storage_dc_current", 0.3952)
     assert_state("sensor.gen24_storage_dc_voltage_2", 318.8103)
@@ -308,6 +311,7 @@ async def test_gen24_storage(
     assert_state("sensor.gen24_storage_ac_power", 250.9093)
     assert_state("sensor.gen24_storage_error_code", 0)
     assert_state("sensor.gen24_storage_status_code", 7)
+    assert_state("sensor.gen24_storage_status_message", "running")
     assert_state("sensor.gen24_storage_total_energy", 7512794.0117)
     assert_state("sensor.gen24_storage_inverter_state", "Running")
     assert_state("sensor.gen24_storage_dc_voltage", 419.1009)
@@ -421,7 +425,7 @@ async def test_primo_s0(
     await enable_all_entities(
         hass, config_entry.entry_id, FroniusMeterUpdateCoordinator.default_interval
     )
-    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 40
+    assert len(hass.states.async_all(domain_filter=SENSOR_DOMAIN)) == 42
     # logger
     assert_state("sensor.solarnet_grid_export_tariff", 1)
     assert_state("sensor.solarnet_co2_factor", 0.53)
@@ -434,6 +438,7 @@ async def test_primo_s0(
     assert_state("sensor.primo_5_0_1_error_code", 0)
     assert_state("sensor.primo_5_0_1_dc_current", 4.23)
     assert_state("sensor.primo_5_0_1_status_code", 7)
+    assert_state("sensor.primo_5_0_1_status_message", "running")
     assert_state("sensor.primo_5_0_1_energy_year", 7532755.5)
     assert_state("sensor.primo_5_0_1_ac_current", 3.85)
     assert_state("sensor.primo_5_0_1_ac_voltage", 223.9)
@@ -448,6 +453,7 @@ async def test_primo_s0(
     assert_state("sensor.primo_3_0_1_error_code", 0)
     assert_state("sensor.primo_3_0_1_dc_current", 0.97)
     assert_state("sensor.primo_3_0_1_status_code", 7)
+    assert_state("sensor.primo_3_0_1_status_message", "running")
     assert_state("sensor.primo_3_0_1_energy_year", 3596193.25)
     assert_state("sensor.primo_3_0_1_ac_current", 1.32)
     assert_state("sensor.primo_3_0_1_ac_voltage", 223.6)
