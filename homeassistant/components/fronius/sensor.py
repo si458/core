@@ -34,8 +34,10 @@ from .const import (
     DOMAIN,
     InverterStatusCodeOption,
     MeterLocationCodeOption,
+    OhmPilotStateCodeOption,
     get_inverter_status_message,
     get_meter_location_description,
+    get_ohmpilot_state_message,
 )
 
 if TYPE_CHECKING:
@@ -496,7 +498,11 @@ OHMPILOT_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [
     ),
     FroniusSensorEntityDescription(
         key="state_message",
+        response_key="state_code",
         entity_category=EntityCategory.DIAGNOSTIC,
+        device_class=SensorDeviceClass.ENUM,
+        options=[opt.value for opt in OhmPilotStateCodeOption],
+        value_fn=get_ohmpilot_state_message,
     ),
 ]
 
