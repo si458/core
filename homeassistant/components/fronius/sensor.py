@@ -30,7 +30,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, InverterStatusCodeOption, get_inverter_status_message
+from .const import (
+    DOMAIN,
+    InverterStatusCodeOption,
+    MeterLocationCodeOption,
+    get_inverter_status_message,
+    get_meter_location_description,
+)
 
 if TYPE_CHECKING:
     from . import FroniusSolarNet
@@ -293,6 +299,15 @@ METER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [
     FroniusSensorEntityDescription(
         key="meter_location",
         entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=int,  # type: ignore[arg-type]
+    ),
+    FroniusSensorEntityDescription(
+        key="meter_location_description",
+        response_key="meter_location",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        device_class=SensorDeviceClass.ENUM,
+        options=[opt.value for opt in MeterLocationCodeOption],
+        value_fn=get_meter_location_description,
     ),
     FroniusSensorEntityDescription(
         key="power_apparent_phase_1",
