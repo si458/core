@@ -14,7 +14,7 @@ from homeassistant.helpers import issue_registry as ir
 
 from . import (
     BASE_URL,
-    CONFIG_ENTRY_DATA,
+    CONFIG_ENTRY_DATA_MULTIPAN,
     DATASET_CH15,
     DATASET_CH16,
     DATASET_INSECURE_NW_KEY,
@@ -36,7 +36,7 @@ async def test_import_dataset(hass: HomeAssistant) -> None:
     issue_registry = ir.async_get(hass)
 
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -72,7 +72,7 @@ async def test_import_share_radio_channel_collision(
     multiprotocol_addon_manager_mock.async_get_channel.return_value = 15
 
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -105,7 +105,7 @@ async def test_import_share_radio_no_channel_collision(
     multiprotocol_addon_manager_mock.async_get_channel.return_value = 15
 
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -136,7 +136,7 @@ async def test_import_insecure_dataset(hass: HomeAssistant, dataset: bytes) -> N
     issue_registry = ir.async_get(hass)
 
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -167,7 +167,7 @@ async def test_config_entry_not_ready(hass: HomeAssistant, error) -> None:
     """Test raising ConfigEntryNotReady ."""
 
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -180,7 +180,7 @@ async def test_config_entry_not_ready(hass: HomeAssistant, error) -> None:
 async def test_config_entry_update(hass: HomeAssistant) -> None:
     """Test update config entry settings."""
     config_entry = MockConfigEntry(
-        data=CONFIG_ENTRY_DATA,
+        data=CONFIG_ENTRY_DATA_MULTIPAN,
         domain=otbr.DOMAIN,
         options={},
         title="My OTBR",
@@ -191,10 +191,10 @@ async def test_config_entry_update(hass: HomeAssistant) -> None:
     with patch("python_otbr_api.OTBR", return_value=mock_api) as mock_otrb_api:
         assert await hass.config_entries.async_setup(config_entry.entry_id)
 
-    mock_otrb_api.assert_called_once_with(CONFIG_ENTRY_DATA["url"], ANY, ANY)
+    mock_otrb_api.assert_called_once_with(CONFIG_ENTRY_DATA_MULTIPAN["url"], ANY, ANY)
 
     new_config_entry_data = {"url": "http://core-silabs-multiprotocol:8082"}
-    assert CONFIG_ENTRY_DATA["url"] != new_config_entry_data["url"]
+    assert CONFIG_ENTRY_DATA_MULTIPAN["url"] != new_config_entry_data["url"]
     with patch("python_otbr_api.OTBR", return_value=mock_api) as mock_otrb_api:
         hass.config_entries.async_update_entry(config_entry, data=new_config_entry_data)
         await hass.async_block_till_done()
@@ -203,7 +203,7 @@ async def test_config_entry_update(hass: HomeAssistant) -> None:
 
 
 async def test_remove_entry(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs after removing the config entry."""
 
@@ -219,7 +219,7 @@ async def test_remove_entry(
 
 
 async def test_get_active_dataset_tlvs(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs."""
 
@@ -237,7 +237,7 @@ async def test_get_active_dataset_tlvs(
 
 
 async def test_get_active_dataset_tlvs_empty(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs."""
 
@@ -253,7 +253,7 @@ async def test_get_active_dataset_tlvs_addon_not_installed(hass: HomeAssistant) 
 
 
 async def test_get_active_dataset_tlvs_404(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs with error."""
 
@@ -263,7 +263,7 @@ async def test_get_active_dataset_tlvs_404(
 
 
 async def test_get_active_dataset_tlvs_201(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs with error."""
 
@@ -273,7 +273,7 @@ async def test_get_active_dataset_tlvs_201(
 
 
 async def test_get_active_dataset_tlvs_invalid(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, otbr_config_entry_multipan
 ) -> None:
     """Test async_get_active_dataset_tlvs with error."""
 
