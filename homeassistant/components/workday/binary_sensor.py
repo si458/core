@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from typing import Any
 
 import holidays
-from holidays import DateLike, HolidayBase
+from holidays import HolidayBase
 import voluptuous as vol
 
 from homeassistant.components.binary_sensor import (
@@ -111,7 +111,7 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the Workday sensor."""
-    add_holidays: list[DateLike] = entry.options[CONF_ADD_HOLIDAYS]
+    add_holidays: list[str] = entry.options[CONF_ADD_HOLIDAYS]
     remove_holidays: list[str] = entry.options[CONF_REMOVE_HOLIDAYS]
     country: str = entry.options[CONF_COUNTRY]
     days_offset: int = int(entry.options[CONF_OFFSET])
@@ -127,18 +127,50 @@ async def async_setup_entry(
         LOGGER.error("There is no subdivision %s in country %s", province, country)
         return
 
-    obj_holidays = cls(
+    obj_holidays: HolidayBase = cls(
         subdiv=province, years=year, language=cls.default_language
     )  # type: ignore[operator]
 
+    calc_add_holidays: list[str] = []
+    for add_date in add_holidays:
+        if add_date.find(",") > 0:
+            dates = add_date.split(",", maxsplit=1)
+            d1 = dt_util.parse_date(dates[0])
+            d2 = dt_util.parse_date(dates[1])
+            if d1 is None or d2 is None:
+                LOGGER.error("Incorrect adding dates in date range: %s", add_date)
+                continue
+            _range: timedelta = d2 - d1
+            for i in range(_range.days + 1):
+                day = d1 + timedelta(days=i)
+                calc_add_holidays.append(day.strftime("%Y-%m-%d"))
+            continue
+        calc_add_holidays.append(add_date)
+
+    calc_remove_holidays: list[str] = []
+    for remove_date in remove_holidays:
+        if remove_date.find(",") > 0:
+            dates = remove_date.split(",", maxsplit=1)
+            d1 = dt_util.parse_date(dates[0])
+            d2 = dt_util.parse_date(dates[1])
+            if d1 is None or d2 is None:
+                LOGGER.error("Incorrect removing dates in date range: %s", remove_date)
+                continue
+            _range = d2 - d1
+            for i in range(_range.days + 1):
+                day = d1 + timedelta(days=i)
+                calc_remove_holidays.append(day.strftime("%Y-%m-%d"))
+            continue
+        calc_remove_holidays.append(remove_date)
+
     # Add custom holidays
     try:
-        obj_holidays.append(add_holidays)
+        obj_holidays.append(calc_add_holidays)  # type: ignore[arg-type]
     except ValueError as error:
         LOGGER.error("Could not add custom holidays: %s", error)
 
     # Remove holidays
-    for remove_holiday in remove_holidays:
+    for remove_holiday in calc_remove_holidays:
         try:
             # is this formatted as a date?
             if dt_util.parse_date(remove_holiday):
@@ -231,6 +263,8 @@ class IsWorkdaySensor(BinarySensorEntity):
         """Get date and look whether it is a holiday."""
         # Default is no workday
         self._attr_is_on = False
+
+        LOGGER.debug("holidays: %s", self._obj_holidays)
 
         # Get ISO day of the week (1 = Monday, 7 = Sunday)
         adjusted_date = dt_util.now() + timedelta(days=self._days_offset)
