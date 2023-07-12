@@ -57,7 +57,7 @@ class WyomingTtsProvider(tts.TextToSpeechEntity):
                 self._voices[language].append(
                     tts.Voice(
                         voice_id=voice.name,
-                        name=voice.description,
+                        name=voice.description or voice.name,
                     )
                 )
 
