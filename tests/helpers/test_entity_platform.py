@@ -1061,11 +1061,9 @@ async def test_entity_registry_updates_invalid_entity_id(hass: HomeAssistant) ->
 
 async def test_device_info_called(hass: HomeAssistant) -> None:
     """Test device info is forwarded correctly."""
-    config_entry = MockConfigEntry(entry_id="123")
-    config_entry.add_to_hass(hass)
     registry = dr.async_get(hass)
     via = registry.async_get_or_create(
-        config_entry_id=config_entry.entry_id,
+        config_entry_id="123",
         connections=set(),
         identifiers={("hue", "via-id")},
         manufacturer="manufacturer",
@@ -1101,7 +1099,6 @@ async def test_device_info_called(hass: HomeAssistant) -> None:
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1128,11 +1125,9 @@ async def test_device_info_called(hass: HomeAssistant) -> None:
 
 async def test_device_info_not_overrides(hass: HomeAssistant) -> None:
     """Test device info is forwarded correctly."""
-    config_entry = MockConfigEntry(entry_id="bla")
-    config_entry.add_to_hass(hass)
     registry = dr.async_get(hass)
     device = registry.async_get_or_create(
-        config_entry_id=config_entry.entry_id,
+        config_entry_id="bla",
         connections={(dr.CONNECTION_NETWORK_MAC, "abcd")},
         manufacturer="test-manufacturer",
         model="test-model",
@@ -1160,7 +1155,6 @@ async def test_device_info_not_overrides(hass: HomeAssistant) -> None:
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1179,11 +1173,9 @@ async def test_device_info_homeassistant_url(
     hass: HomeAssistant, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test device info with homeassistant URL."""
-    config_entry = MockConfigEntry(entry_id="123")
-    config_entry.add_to_hass(hass)
     registry = dr.async_get(hass)
     registry.async_get_or_create(
-        config_entry_id=config_entry.entry_id,
+        config_entry_id="123",
         connections=set(),
         identifiers={("mqtt", "via-id")},
         manufacturer="manufacturer",
@@ -1208,7 +1200,6 @@ async def test_device_info_homeassistant_url(
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1228,11 +1219,9 @@ async def test_device_info_change_to_no_url(
     hass: HomeAssistant, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test device info changes to no URL."""
-    config_entry = MockConfigEntry(entry_id="123")
-    config_entry.add_to_hass(hass)
     registry = dr.async_get(hass)
     registry.async_get_or_create(
-        config_entry_id=config_entry.entry_id,
+        config_entry_id="123",
         connections=set(),
         identifiers={("mqtt", "via-id")},
         manufacturer="manufacturer",
@@ -1258,7 +1247,6 @@ async def test_device_info_change_to_no_url(
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1314,7 +1302,6 @@ async def test_entity_disabled_by_device(hass: HomeAssistant) -> None:
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id", domain=DOMAIN)
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1632,7 +1619,6 @@ async def test_entity_name_influences_entity_id(
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1702,7 +1688,6 @@ async def test_translated_entity_name_influences_entity_id(
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1786,7 +1771,6 @@ async def test_translated_device_class_name_influences_entity_id(
 
     platform = MockPlatform(async_setup_entry=async_setup_entry)
     config_entry = MockConfigEntry(entry_id="super-mock-id")
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
@@ -1897,7 +1881,6 @@ async def test_device_type_error_checking(
     config_entry = MockConfigEntry(
         title="Mock Config Entry Title", entry_id="super-mock-id"
     )
-    config_entry.add_to_hass(hass)
     entity_platform = MockEntityPlatform(
         hass, platform_name=config_entry.domain, platform=platform
     )
